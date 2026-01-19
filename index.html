@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:;">
+  <title>SocialEye - Influencer Dashboard</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-container">
+    <header class="app-header">
+      <h1>SocialEye</h1>
+      <p class="tagline">Your Social Media Command Center</p>
+    </header>
+
+    <div class="main-content">
+      <aside class="sidebar">
+        <nav>
+          <ul>
+            <li class="nav-item active">
+              <span class="icon">📷</span>
+              Photos
+            </li>
+            <li class="nav-item disabled">
+              <span class="icon">📊</span>
+              Analytics
+            </li>
+            <li class="nav-item disabled">
+              <span class="icon">📱</span>
+              Accounts
+            </li>
+            <li class="nav-item disabled">
+              <span class="icon">📅</span>
+              Schedule
+            </li>
+          </ul>
+        </nav>
+      </aside>
+
+      <main class="content-area">
+        <div class="photos-section">
+          <div class="section-header">
+            <h2>Photo Library</h2>
+            <button id="selectFolderBtn" class="btn-primary">
+              Select Photo Folder
+            </button>
+          </div>
+
+          <div id="currentPath" class="current-path"></div>
+
+          <div id="loadingIndicator" class="loading hidden">
+            Loading photos...
+          </div>
+
+          <div id="photoGrid" class="photo-grid">
+            <div class="empty-state">
+              <div class="empty-icon">📸</div>
+              <h3>No Photos Loaded</h3>
+              <p>Click "Select Photo Folder" to browse your photo library</p>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Photo Modal -->
+  <div id="photoModal" class="modal hidden">
+    <div class="modal-content">
+      <span class="close-modal">&times;</span>
+      <img id="modalImage" src="" alt="Full size photo">
+      <div class="modal-info">
+        <h3 id="modalTitle"></h3>
+        <p id="modalDetails"></p>
+      </div>
+    </div>
+  </div>
+
+  <script src="renderer.js"></script>
+</body>
+</html>

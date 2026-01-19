@@ -1,0 +1,16 @@
+{
+  "name": "socialeye",
+  "version": "1.0.0",
+  "description": "Desktop app for social media influencers to track their social presence across accounts",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --dev"
+  },
+  "keywords": ["electron", "social-media", "influencer", "photos"],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^28.0.0"
+  }
+}
