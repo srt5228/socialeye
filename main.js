@@ -1,8 +1,10 @@
 const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 const path = require('path');
 const fs = require('fs').promises;
+const PhotosLibrary = require('./photosLibrary');
 
 let mainWindow;
+let photosLibrary = null;
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -110,5 +112,54 @@ ipcMain.handle('read-photo', async (event, photoPath) => {
   } catch (error) {
     console.error('Error reading photo:', error);
     throw error;
+  }
+});
+
+// Check if macOS Photos library is available
+ipcMain.handle('check-photos-library', async () => {
+  return PhotosLibrary.isAvailable();
+});
+
+// Load photos from macOS Photos library
+ipcMain.handle('load-photos-library', async (event, limit = 100, offset = 0) => {
+  try {
+    if (!photosLibrary) {
+      photosLibrary = new PhotosLibrary();
+      photosLibrary.connect();
+    }
+
+    const photos = photosLibrary.getPhotos(limit, offset);
+    const count = photosLibrary.getPhotoCount();
+
+    // Get actual file paths for photos
+    const photosWithPaths = photos.map(photo => {
+      const photoPath = photosLibrary.getPhotoPath(photo);
+      return {
+        name: photo.name,
+        path: photoPath,
+        size: 0, // Size will be read when needed
+        modified: photo.dateCreated || photo.modificationDate,
+        width: photo.width,
+        height: photo.height,
+        uuid: photo.uuid
+      };
+    }).filter(photo => photo.path !== null); // Filter out photos we can't find
+
+    return {
+      photos: photosWithPaths,
+      total: count,
+      limit,
+      offset
+    };
+  } catch (error) {
+    console.error('Error loading Photos library:', error);
+    throw error;
+  }
+});
+
+// Clean up on app quit
+app.on('before-quit', () => {
+  if (photosLibrary) {
+    photosLibrary.close();
   }
 });

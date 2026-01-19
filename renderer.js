@@ -1,5 +1,6 @@
 let currentPhotos = [];
 let currentDirectory = null;
+let usingPhotosLibrary = false;
 
 const selectFolderBtn = document.getElementById('selectFolderBtn');
 const photoGrid = document.getElementById('photoGrid');
@@ -17,6 +18,19 @@ closeModal.addEventListener('click', hideModal);
 photoModal.addEventListener('click', (e) => {
   if (e.target === photoModal) {
     hideModal();
+  }
+});
+
+// Auto-load Photos library on startup if available
+window.addEventListener('DOMContentLoaded', async () => {
+  try {
+    const hasPhotosLibrary = await window.electronAPI.checkPhotosLibrary();
+
+    if (hasPhotosLibrary) {
+      await loadMacPhotosLibrary();
+    }
+  } catch (error) {
+    console.error('Error checking Photos library:', error);
   }
 });
 
@@ -154,6 +168,44 @@ function formatDate(date) {
     month: 'short',
     day: 'numeric'
   });
+}
+
+async function loadMacPhotosLibrary() {
+  try {
+    loadingIndicator.classList.remove('hidden');
+    photoGrid.innerHTML = '';
+    usingPhotosLibrary = true;
+
+    currentPathDiv.textContent = '📷 macOS Photos Library';
+    selectFolderBtn.textContent = 'Browse Other Folder';
+
+    const result = await window.electronAPI.loadPhotosLibrary(100, 0);
+    currentPhotos = result.photos;
+
+    if (currentPhotos.length === 0) {
+      photoGrid.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-icon">📷</div>
+          <h3>No Photos Found</h3>
+          <p>Your Photos library appears to be empty</p>
+        </div>
+      `;
+    } else {
+      displayPhotos(currentPhotos);
+    }
+  } catch (error) {
+    console.error('Error loading Photos library:', error);
+    photoGrid.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">⚠️</div>
+        <h3>Could Not Access Photos Library</h3>
+        <p>${error.message || 'Failed to load Photos library'}</p>
+        <p style="margin-top: 10px; font-size: 12px;">Try selecting a folder manually instead.</p>
+      </div>
+    `;
+  } finally {
+    loadingIndicator.classList.add('hidden');
+  }
 }
 
 // Keyboard shortcuts
